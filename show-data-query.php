@@ -6,7 +6,7 @@ $q = (isset($_GET['query']) && !empty($_GET['query'])) ? trim($_GET['query']) : 
 $sql = "SELECT * FROM users";
 
 if($q !== null){
-    $sql .= " WHERE fname , lname LIKE '%".$q."%' ";
+    $sql .= " WHERE fname LIKE '%".$q."%' OR lname LIKE '%".$q."%'";
 }
 $result = mysqli_query($db_con, $sql);
 

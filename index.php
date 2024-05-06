@@ -9,8 +9,13 @@
 
 <body>
     <div class="container w-75 shadow mx-auto mt-5 p-5">
-
-        <h3 class=" p-1 mb-2">Add <span class="text-success"> User</span> Information</h3>
+        <div class="row">
+            <div class="col-md-6">
+                <h3 class=" p-1 mb-2">Add <span class="text-success"> User</span> Information</h3>
+            </div>
+            <div class="col-md-6">
+            <div class="alert alert-success" style="display: none" ; id="messages"></div></div>
+        </div>
         <hr>
 
         <!-- form to get data from user -->
@@ -38,8 +43,8 @@
                 <hr>
             </div>
             <div class="col-md-6">
-            <input type="text" id="searchInput" placeholder="Type to search" class="form-control w-100"/>
-            <hr>
+                <input type="text" id="searchInput" placeholder="Type to search" class="form-control w-100" />
+                <hr>
             </div>
             <div class="col-md-12" id="table-data">
 
@@ -79,10 +84,12 @@
     </div>
 
     <!-- delete modal -->
-        <div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="deletemodal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <form method="POST">
+                    <input type="hidden" id="item_id" value="" />
+
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -92,7 +99,7 @@
                         <div class="mb-3">
                             <h5>Are You Sure! You Want to Delete?</h5>
                         </div>
-                        <div class="alert alert-success" style="display: none" ; id="messages"></div>
+                        <div class="alert alert-success" style="display: none" ; id="message"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
@@ -112,133 +119,159 @@
     <script>
         $(document).ready(function() {
 
-                // insert data function 
-                function loadData(query = null) {
-                    // send data on insert qry page
-                    $.ajax({
-                        url: "./show-data-query.php",
-                        type: "GET",
-                        data: {
-                            query: query
-                        },
-                        success: function(response) {
-                            $('#table-data').html(response)
-                        }
-                    })
+            // insert data function 
+            function loadData(query = null) {
+                // send data on insert qry page
+                $.ajax({
+                    url: "./show-data-query.php",
+                    type: "GET",
+                    data: {
+                        query: query
+                    },
+                    success: function(response) {
+                        $('#table-data').html(response)
+                    }
+                })
 
 
+            }
+
+            loadData();
+
+            var btn = $("#send");
+
+            // insert data function 
+            btn.click(function() {
+                var fname = $("#fname").val();
+                var lname = $("#lname").val();
+
+                // send data on insert qry page
+                $.ajax({
+                    url: "./insert-qry.php",
+                    type: "POST",
+                    data: {
+                        firstName: fname,
+                        lastName: lname
+                    },
+                    success: function(response) {
+                        
+                        $("#fname").val("");
+                        $("#lname").val("");
+                        $("#messages").html(response).show();
+                        setTimeout(() => {
+                            $("#messages").hide();
+                        }, 1000)
+                        loadData();
+                    }
+                })
+            })
+
+
+            // edit data function 
+            $(document).on("click", '.editBtn', function() {
+                let id = $(this).data('id');
+                $.ajax({
+                    url: "./edit.php",
+                    type: "GET",
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        let data = JSON.parse(response);
+                        $("#editfname").val(data.fname);
+                        $("#editlname").val(data.lname);
+                        $("#item_id").val(data.id);
+                        $("#modal").modal("show");
+
+                    }
+                })
+
+            })
+
+            //update item
+            $("#updateBtn").on("click", function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: "./update.php",
+                    type: "POST",
+                    data: {
+                        fname: $("#editfname").val(),
+                        lname: $("#editlname").val(),
+                        id: $("#item_id").val()
+                    },
+                    success: function(res) {
+
+                        $("#messages").html(res).show();
+                        setTimeout(() => {
+                            $("#messages").hide();
+                            $("#modal").modal("hide");
+                        }, 2000)
+                        loadData();
+                    }
+                })
+            })
+
+
+            //Search section
+            $("#searchInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                if (value.length > 1) {
+                    loadData(value);
+                } else {
+                    loadData();
                 }
 
-                    loadData();
+            })
 
-                    var btn = $("#send");
+            // Delete data function 
+            $(document).on("click", '.deletebtn', function() {
 
-                    // insert data function 
-                    btn.click(function() {
-                        var fname = $("#fname").val();
-                        var lname = $("#lname").val();
-
-                        // send data on insert qry page
-                        $.ajax({
-                            url: "./insert-qry.php",
-                            type: "POST",
-                            data: {
-                                firstName: fname,
-                                lastName: lname
-                            },
-                            success: function(response) {
-                                alert(response);
-                                $("#fname").val("");
-                                $("#lname").val("");
-                                loadData();
-                            }
-                        })
-                    })
+                var id = $(this).data('id');
+                $.ajax({
+                    url: "./delete.php",
+                    type: "GET",
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
 
 
-                    // edit data function 
-                    $(document).on("click", '.editBtn', function() {
-                        let id = $(this).data('id');
-                        $.ajax({
-                            url: "./edit.php",
-                            type: "GET",
-                            data: {
-                                id: id
-                            },
-                            success: function(response) {
-                                console.log(response);
-                                let data = JSON.parse(response);
-                                $("#editfname").val(data.fname);
-                                $("#editlname").val(data.lname);
-                                $("#item_id").val(data.id);
-                                $("#modal").modal("show");
+                        var data = JSON.parse(response);
+                        console.log(data);
+                        $("#deletemodal").modal("show");
+                        $("#item_id").val(data.id);
+                    }
+                })
 
-                                }
-                            })
+            });
 
-                        })
+            //Delete query function
+            $("#deleteBtn").on("click", function() {
+                $.ajax({
+                    url: "./delete-qry.php",
+                    type: "POST",
+                    data: {
+                        id: $("#item_id").val()
+                    },
+                    success: function(respon) {
+                         $("#message").html(respon).show();
+                        setTimeout(() => {
+                            $("#message").hide();
+                            $("#deletemodal").modal("hide");
+                        }, 500)
+                        loadData();
+                    }
+                })
+            })
 
-                        //update item
-                        $("#updateBtn").on("click",  function(e) {
-                            e.preventDefault();
-                            $.ajax({
-                                url: "./update.php",
-                                type: "POST",
-                                data: {
-                                    fname: $("#editfname").val(),
-                                    lname: $("#editlname").val(),
-                                    id: $("#item_id").val()
-                                },
-                                success: function(res) {
-
-                                    $("#messages").html(res).show();
-                                    setTimeout(() => {
-                                        $("#messages").hide();
-                                        $("#modal").modal("hide");
-                                    }, 2000)
-                                    loadData();
-                                }
-                            })
-                        })
-
-
-                        //Search section
-                    $("#searchInput").on("keyup" , function() {
-                         var value = $(this).val().toLowerCase();
-                         if(value.length > 2){
-                            loadData(value);
-                         }
-                         else{
-                            loadData();
-                         }
-
-
-                         
-                         // Delete data function 
-                    $(document).on("click", '.deletebtn', function() {
-                        let del_id = $(this).data('id');
-                        $.ajax({
-                            url: "./delete.php",
-                            type: "POST",
-                            data: {
-                                id: del_id
-                            },
-                            success: function() {
-                                $("#deletemodal").modal("show");
-                                loadData();
-                                }
-                            })
-
-                        })
-
-                    });
             // hide modal event
             // const myModalEl = document.getElementById('#modal')
             // myModalEl.addEventListener('hidden.bs.modal', event => {
             //     loadData();
             // })
 
-         })
+        })
     </script>
 
 </body>
