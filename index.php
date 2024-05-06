@@ -14,7 +14,7 @@
                 <h3 class=" p-1 mb-2">Add <span class="text-success"> User</span> Information</h3>
             </div>
             <div class="col-md-6">
-            <div class="alert alert-success" style="display: none" ; id="messages"></div></div>
+            <div class="alert alert-success" style="display: none" ; id="alert"></div></div>
         </div>
         <hr>
 
@@ -32,7 +32,7 @@
 
             <div class="col-md-4 mt-3 mx-auto">
                 <label class="form-label"></label>
-                <input type="submit" id="send" class="btn btn-success w-100" name="submit" value="Submit" />
+                <input type="submit" id="send" class="btn btn-success w-100" name="submit" value="Add User" />
             </div>
         </div>
 
@@ -157,9 +157,9 @@
                         
                         $("#fname").val("");
                         $("#lname").val("");
-                        $("#messages").html(response).show();
+                        $("#alert").html(response).show();
                         setTimeout(() => {
-                            $("#messages").hide();
+                            $("#alert").hide();
                         }, 1000)
                         loadData();
                     }
@@ -206,7 +206,7 @@
                         setTimeout(() => {
                             $("#messages").hide();
                             $("#modal").modal("hide");
-                        }, 2000)
+                        }, 1000)
                         loadData();
                     }
                 })
@@ -259,7 +259,7 @@
                         setTimeout(() => {
                             $("#message").hide();
                             $("#deletemodal").modal("hide");
-                        }, 500)
+                        }, 300)
                         loadData();
                     }
                 })
