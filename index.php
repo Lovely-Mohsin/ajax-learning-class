@@ -14,7 +14,8 @@
                 <h3 class=" p-1 mb-2">Add <span class="text-success"> User</span> Information</h3>
             </div>
             <div class="col-md-6">
-            <div class="alert alert-success" style="display: none" ; id="alert"></div></div>
+                <div class="alert alert-success" style="display: none" ; id="alert"></div>
+            </div>
         </div>
         <hr>
 
@@ -120,13 +121,14 @@
         $(document).ready(function() {
 
             // insert data function 
-            function loadData(query = null) {
+            function loadData(page, query = null) {
                 // send data on insert qry page
                 $.ajax({
                     url: "./show-data-query.php",
                     type: "GET",
                     data: {
-                        query: query
+                        query: query,
+                        page: page
                     },
                     success: function(response) {
                         $('#table-data').html(response)
@@ -136,7 +138,7 @@
 
             }
 
-            loadData();
+            loadData(1);
 
             var btn = $("#send");
 
@@ -154,14 +156,14 @@
                         lastName: lname
                     },
                     success: function(response) {
-                        
+
                         $("#fname").val("");
                         $("#lname").val("");
                         $("#alert").html(response).show();
                         setTimeout(() => {
                             $("#alert").hide();
                         }, 1000)
-                        loadData();
+                        loadData(1);
                     }
                 })
             })
@@ -207,19 +209,30 @@
                             $("#messages").hide();
                             $("#modal").modal("hide");
                         }, 1000)
-                        loadData();
+                        loadData(1);
                     }
                 })
             })
+
+            // pagination
+            $(document).on('click', '.page', function() {
+                let page = $(this).data('page');
+                let search = $("#searchInput").val();
+                if (search.length > 0) {
+                    loadData(page, search);
+                } else {
+                    loadData(page);
+                }
+            });
 
 
             //Search section
             $("#searchInput").on("keyup", function() {
                 var value = $(this).val().toLowerCase();
-                if (value.length > 1) {
-                    loadData(value);
+                if (value.length > 0) {
+                    loadData(1,value);
                 } else {
-                    loadData();
+                    loadData(1);
                 }
 
             })
@@ -255,7 +268,7 @@
                         id: $("#item_id").val()
                     },
                     success: function(respon) {
-                         $("#message").html(respon).show();
+                        $("#message").html(respon).show();
                         setTimeout(() => {
                             $("#message").hide();
                             $("#deletemodal").modal("hide");
